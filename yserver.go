@@ -45,15 +45,7 @@ func NewServer(opts *Options) *YServer {
 	}
 	return s
 }
-func (s *YServer) BoradCastBytes(b []byte ) error {
-	for conn, _ := range s.conns {
-		err := conn.SendBytes(b)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
+
 //对所有连接广播
 func (s *YServer) BoradCast(p PACK) error {
 	for conn, _ := range s.conns {

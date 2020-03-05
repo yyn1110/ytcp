@@ -46,17 +46,7 @@ func NewYConn(opts *Options) *YConn {
 
 	return c
 }
-func (this *YConn) SendBytes(b []byte) error {
-	_,err:=this.bw.Write(b)
-	if err != nil {
-		return err
-	}
-	err = this.bw.Flush()
-	if err != nil {
-		return err
-	}
-	return nil
-}
+
 //Send
 func (this *YConn) Send(p PACK) error {
 	if atomic.LoadInt32(&this.state) != connStateNormal {
@@ -193,8 +183,19 @@ func (this *YConn) sendLoop() {
 				return
 			}
 			_, err := pack.Write(this.bw)
-			this.bw.Flush()
-			this.Opts.Handler.OnSend(pack, err)
+			if err!=nil{
+				this.Opts.Handler.OnSend(pack, err)
+			}else{
+				err=this.bw.Flush()
+				if err!=nil{
+					this.Opts.Handler.OnSend(pack, err)
+				}else{
+					this.Opts.Handler.OnSend(pack, nil)
+				}
+			}
+
+
+
 
 		case <-this.closed:
 			if atomic.LoadInt32(&this.state) == connStateStopping {

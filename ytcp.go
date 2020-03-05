@@ -8,6 +8,7 @@ import (
 
 type PACK interface {
 	fmt.Stringer
+	//Pack
 	ReadPack(reader io.Reader, aesKey string) (pack PACK, err error)
 	//UnPack
 	Write(writer io.Writer) (n int, err error)

@@ -27,6 +27,7 @@ type YConn struct {
 	state    int32
 	wg       sync.WaitGroup
 	sendChan chan PACK
+	reciveChan chan PACK
 }
 
 // NewConn return new conn.
@@ -40,6 +41,7 @@ func NewYConn(opts *Options) *YConn {
 	c := &YConn{
 		Opts:     opts,
 		sendChan: make(chan PACK, opts.SendBufListLen),
+		reciveChan: make(chan PACK, opts.RecvBufSize),
 		closed:   make(chan struct{}),
 		state:    connStateNormal,
 	}

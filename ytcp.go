@@ -23,6 +23,8 @@ var (
 )
 
 type YConnHandler interface {
+	//是否接受连接
+	CanAccept(conn *YConn) error
 	//服务端收到客户端后回调
 	OnAccept(conn *YConn)
 	// 客户端连接到服务端后回调

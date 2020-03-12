@@ -27,6 +27,7 @@ type YServer struct {
 	once    sync.Once
 	lis     net.Listener
 	conns   map[*YConn]bool
+	addr net.Addr
 }
 
 func NewServer(opts *Options) *YServer {
@@ -66,10 +67,15 @@ func (s *YServer) ListenAndServe(addr string) error {
 
 	return nil
 }
+func (s *YServer)Addr() net.Addr{
 
+	return s.addr
+}
 // Serve start the tcp server to accept.
 func (s *YServer) Serve(l net.Listener) {
 	defer s.wg.Done()
+
+	s.addr = l.Addr()
 
 	s.wg.Add(1)
 
@@ -172,6 +178,12 @@ func (s *YServer) handleRawConn(conn net.Conn) {
 	tcpConn.c = conn
 	tcpConn.bw = bufio.NewWriter(conn)
 	tcpConn.br = bufio.NewReader(conn)
+	err:=s.Opts.Handler.CanAccept(tcpConn)
+	if err!=nil{
+		tcpConn.Stop(StopImmediately)
+		return
+	}
+
 
 	if !s.addConn(tcpConn) {
 		tcpConn.Stop(StopImmediately)
